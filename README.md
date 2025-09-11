@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # WordCount-Using-MapReduce-Hadoop
 
@@ -124,3 +125,6 @@ data 1
 powerful 1
 world 1
    ```
+=======
+# Hands-on-L4-HDFS-and-MapReduce
+>>>>>>> 7b3e5f74f78092069b027a0c1281718d51e8d48a
