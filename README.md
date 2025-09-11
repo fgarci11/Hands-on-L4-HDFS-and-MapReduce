@@ -1,130 +1,36 @@
-<<<<<<< HEAD
+## Hands-on L4: Word count using MapReduce
 
-# WordCount-Using-MapReduce-Hadoop
+## Project Overview
 
-This repository is designed to test MapReduce jobs using a simple word count dataset. In this project we provide a input file and then we create a maaper and reducer logic to count the occurence of each word in the given input. There are sample input and Expected output for the sample input.
+The purpose of this hands-on is to gain practical experience with Hadoop MapReduce
+Jobs by implementing a Word Count program. This project creates Hadoop MapReduce 
+jobs using Java and Maven, deploys Hadoop MapReduce jobs using Docker, and uploads 
+files to the Hadoop cluster.
 
-## Approach and implementation
-1. Mapper Logic: We use StringTokenizer to create tokens from the input file and loop it using while loop to map all the words in the input file with key value pairs. In this mapper, it will not count characters that are smaller than 3.
+## Approach and Implementation – Explanation of the Mapper and Reducer logic
 
-2. Reducer Logic: Using the output of Mapper logic we increase a variable sum value as we encounter same words and retun them. this way we will get a list of words and the number of times it occured in the input file as output.
+This program utilizes a Mapper to prepare the data for counting and a Reducer to aggregate the final counts and present them in a sorted order.
 
-## Setup and Execution
+## Explanation of the WordReducer Logic
 
-### 1. **Start the Hadoop Cluster**
+The WordMapper class is responsible for the "map" phase of the MapReduce job. Its primary role is to process input data (in this case, lines of text) and transform it into key-value pairs. This transformation is crucial as it standardizes the data for efficient aggregation by the reducer.
 
-Run the following command to start the Hadoop cluster:
+The map method is the heart of the mapper's logic. It receives an input line of text as a Text object. The process unfolds as follows:
 
-```bash
-docker compose up -d
-```
+Tokenization: The input line is broken down into individual words using the StringTokenizer. This allows the program to process each word separately.
 
-### 2. **Build the Code**
+Filtering: A conditional statement (if (currentWord.length() >= 3)) is used to filter out short words. This ensures that only words with three or more characters are considered for the final count.
 
-Build the code using Maven:
+Key-Value Pair Emission: For each word that passes the filter, the mapper emits a new key-value pair using context.write(word, one). The word itself becomes the key (Text), and a constant value of one (IntWritable(1)) is assigned as its value. This simple (word, 1) structure is a fundamental part of word counting; each emission signifies a single occurrence of that word. 
 
-```bash
-mvn clean package
-```
+## Explanation of the WordReducer Logic
+The WordReducer class handles the "reduce" phase, where it aggregates the key-value pairs emitted by the mapper. Unlike a standard word count reducer that would simply output the sum for each word, this reducer includes a cleanup method to sort the final results.
 
-### 4. **Copy JAR to Docker Container**
+Aggregation in the reduce Method: The reduce method receives a key (a unique word) and an Iterable list of all the IntWritable values (the ones) emitted for that word from all the mappers. The reducer iterates through this list, summing the values to get the total count for the word. Instead of immediately writing the result to the output, it stores each word and its final count in an in-memory Map. This is a crucial step for the subsequent sorting.
 
-Copy the JAR file to the Hadoop ResourceManager container:
+Sorting in the cleanup Method: The cleanup method is a special function that is called exactly once after all the reduce calls have completed. This is where the in-memory map is processed. The words and their counts are converted into a List of Map.Entry objects, which is then sorted in descending order based on the word counts.
 
-```bash
-docker cp target/WordCountUsingHadoop-0.0.1-SNAPSHOT.jar resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
-```
-
-### 5. **Move Dataset to Docker Container**
-
-Copy the dataset to the Hadoop ResourceManager container:
-
-```bash
-docker cp shared-folder/input/data/input.txt resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/
-```
-
-### 6. **Connect to Docker Container**
-
-Access the Hadoop ResourceManager container:
-
-```bash
-docker exec -it resourcemanager /bin/bash
-```
-
-Navigate to the Hadoop directory:
-
-```bash
-cd /opt/hadoop-3.2.1/share/hadoop/mapreduce/
-```
-
-### 7. **Set Up HDFS**
-
-Create a folder in HDFS for the input dataset:
-
-```bash
-hadoop fs -mkdir -p /input/data
-```
-
-Copy the input dataset to the HDFS folder:
-
-```bash
-hadoop fs -put ./input.txt /input/data
-```
-
-### 8. **Execute the MapReduce Job**
-
-Run your MapReduce job using the following command: Here I got an error saying output already exists so I changed it to output1 instead as destination folder
-
-```bash
-hadoop jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/WordCountUsingHadoop-0.0.1-SNAPSHOT.jar com.example.controller.Controller /input/data/input.txt /output1
-```
-
-### 9. **View the Output**
-
-To view the output of your MapReduce job, use:
-
-```bash
-hadoop fs -cat /output1/*
-```
-
-### 10. **Copy Output from HDFS to Local OS**
-
-To copy the output from HDFS to your local machine:
-
-1. Use the following command to copy from HDFS:
-    ```bash
-    hdfs dfs -get /output1 /opt/hadoop-3.2.1/share/hadoop/mapreduce/
-    ```
-
-2. use Docker to copy from the container to your local machine:
-   ```bash
-   exit 
-   ```
-    ```bash
-    docker cp resourcemanager:/opt/hadoop-3.2.1/share/hadoop/mapreduce/output1/ shared-folder/output/
-    ```
-3. Commit and push to your repo so that we can able to see your output
+Final Output: After the list is sorted, the cleanup method iterates through it, writing each word and its corresponding count to the final output file. This ensures that the results are presented from the most frequent word to the least frequent. 
 
 
-## Sample Input: 
- ```bash
-   Hello world
-   Hello Hadoop
-   Hadoop is powerful
-   Hadoop is used for big data
-   ```
 
-## Expected output: 
- ```bash
-Hadoop 3
-Hello 2
-used 1
-for 1
-big 1
-data 1
-powerful 1
-world 1
-   ```
-=======
-# Hands-on-L4-HDFS-and-MapReduce
->>>>>>> 7b3e5f74f78092069b027a0c1281718d51e8d48a
