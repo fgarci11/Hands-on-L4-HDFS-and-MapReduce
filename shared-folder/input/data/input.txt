@@ -1,1 +1,6 @@
 # Create your own input dataset
+This class is really cool
+I like this class
+I like the hands on projects in this class
+Learning about Hadoop today was fun
+Learning about Maven today was fun
